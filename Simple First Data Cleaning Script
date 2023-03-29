@@ -1,0 +1,85 @@
+Prompt:
+I would like to write a Python code that I can pop any dataset into and get automatic cleaning.
+
+Response: 
+import pandas as pd
+
+# Define a function for cleaning the dataset
+def clean_data(df):
+    # Remove duplicates
+    df.drop_duplicates(inplace=True)
+
+    # Remove rows with missing values
+    df.dropna(inplace=True)
+
+    # Convert data types as necessary
+    df['column_name'] = df['column_name'].astype('int')
+
+    # Perform other cleaning steps as necessary
+
+    # Return the cleaned dataset
+    return df
+
+# Load your dataset into a pandas DataFrame
+df = pd.read_csv('your_dataset.csv')
+
+# Clean the dataset using the clean_data() function
+df_cleaned = clean_data(df)
+
+# Save the cleaned dataset to a new file
+df_cleaned.to_csv('your_dataset_cleaned.csv', index=False)
+End response
+
+Prompt:
+Can you help me create a class called "auto_data_clean" that I can choose each time I use it which functions I want to call out of the following:
+- Remove duplicates
+- Remove nulls
+
+Response:
+Sure! Here's an example implementation of the auto_data_clean class in Python that allows you to choose which cleaning functions to apply:
+
+Code block()
+import pandas as pd
+
+class auto_data_clean:
+    def __init__(self, remove_duplicates=True, remove_nulls=True):
+        self.remove_duplicates = remove_duplicates
+        self.remove_nulls = remove_nulls
+
+    def clean(self, df):
+        if self.remove_duplicates:
+            df.drop_duplicates(inplace=True)
+        if self.remove_nulls:
+            df.dropna(inplace=True)
+
+        # Other cleaning steps can be added here
+
+        return df
+        
+()
+
+In this code, the auto_data_clean class takes two optional arguments remove_duplicates and remove_nulls that control which cleaning functions are applied. The clean method takes a DataFrame df as input and applies the selected cleaning functions.
+
+You can create an instance of the auto_data_clean class with the desired cleaning options, and then call the clean method on your DataFrame to perform the cleaning:
+
+Code block ()
+# Load your dataset into a pandas DataFrame
+df = pd.read_csv('your_dataset.csv')
+
+# Create an instance of the auto_data_clean class with desired cleaning options
+cleaner = auto_data_clean(remove_duplicates=True, remove_nulls=True)
+
+# Clean the dataset using the clean method of the auto_data_clean class
+df_cleaned = cleaner.clean(df)
+
+# Save the cleaned dataset to a new file
+df_cleaned.to_csv('your_dataset_cleaned.csv', index=False)
+()
+
+In this example, the clean method of the auto_data_clean class checks the values of remove_duplicates and remove_nulls and applies the corresponding cleaning functions if they are set to True.
+
+You can customize the auto_data_clean class to include other cleaning functions and options as needed.
+
+End
+
+
