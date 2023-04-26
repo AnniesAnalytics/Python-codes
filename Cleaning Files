@@ -1,0 +1,63 @@
+import os
+import pandas as pd
+from zipfile import BadZipFile
+
+class ExcelProcessor:
+    def __init__(self, folder_path, column_name, new_column_name, old_date_column, new_date_column):
+        self.folder_path = folder_path
+        self.column_name = column_name
+        self.new_column_name = new_column_name
+        self.old_date_column = old_date_column
+        self.new_date_column = new_date_column
+        self.files_modified = []
+
+    def process_files(self):
+        for filename in os.listdir(self.folder_path):
+            if filename.endswith('.xlsx') and not filename.startswith('~$'):
+                file_path = os.path.join(self.folder_path, filename)
+                try:
+                    self.process_file(file_path)
+                except BadZipFile:
+                    print(f"Error: Could not process '{file_path}' due to a BadZipFile error.")
+
+    def process_file(self, file_path):
+        df = pd.read_excel(file_path, engine='openpyxl')
+        if self.column_name in df.columns:
+            original_values = df[self.column_name].copy()
+            df[self.column_name] = pd.to_numeric(df[self.column_name], errors='coerce')
+            if not original_values.equals(df[self.column_name]):
+                df.to_excel(file_path, index=False, engine='openpyxl')
+                self.files_modified.append(file_path)
+
+    def rename_columns(self):
+        for filename in os.listdir(self.folder_path):
+            if filename.endswith('.xlsx') and not filename.startswith('~$'):
+                file_path = os.path.join(self.folder_path, filename)
+                try:
+                    self.rename_column(file_path)
+                except BadZipFile:
+                    print(f"Error: Could not process '{file_path}' due to a BadZipFile error.")
+
+    def rename_column(self, file_path):
+        df = pd.read_excel(file_path, engine='openpyxl')
+        if self.old_date_column in df.columns:
+            df = df.rename(columns={self.old_date_column: self.new_date_column})
+            df.to_excel(file_path, index=False, engine='openpyxl')
+            self.files_modified.append(file_path)
+
+folder_path =   # Replace with the folder path containing Excel files
+
+column_name = 'Permit Value'
+new_column_name = 'New Permit Value'
+old_date_column = 'Date of Issue'
+new_date_column = 'Date'
+
+excel_processor = ExcelProcessor(folder_path, column_name, new_column_name, old_date_column, new_date_column)
+
+# Call either process_files or rename_columns as needed
+# excel_processor.process_files()
+excel_processor.rename_columns()
+
+print("Done, results saved to:")
+for file in excel_processor.files_modified:
+    print(file)
