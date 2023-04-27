@@ -8,3 +8,5 @@ As I write more scripts, I need less explainations! Or - I feel ready to dive in
 Want to download a .csv file for yourself? No problem. You can find it [Here](https://anniesanalytics.wixsite.com/annie-nelson/single-project). Just click on the Excel file icon!
 
 You will also find some Chat-GPT assisted demo projects in here where I write out the dialogue between me and Chat-GPT. This is so beginners can see how approachable it is!
+
+Note the "Cleaning Files" script is one I actually used at my job!
