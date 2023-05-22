@@ -10,6 +10,7 @@ You will also find some Chat-GPT assisted demo projects in here where I write ou
 
 # Scripts I actually used at my job
 
-The "Operations Dataset Generator" script is one that took me a lot of time and thought to write. It creates a multi-table dataset about a store's operations department. This script has carefully been created to not just generate random data, but to generate meaningful data that you can analyze and pull trends out of. It is also adjustable, so you can choose to add dysfunction or a price increase into just one of the dataset.
+The ["Operations Dataset Generator"](https://github.com/AnniesAnalytics/Python-codes/blob/main/Operations%20Dataset%20Generator%20Script) script is one that took me a lot of time and thought to write. It creates a multi-table dataset about a store's operations department. This script has carefully been created to not just generate random data, but to generate meaningful data that you can analyze and pull trends out of. It is also adjustable, so you can choose to add dysfunction or a price increase into just one of the dataset.
 
 The ["Cleaning Files"](https://github.com/AnniesAnalytics/Python-codes/blob/main/Cleaning%20Files) script is one I actually run intermittently with one of my customers who has to do a lot of manual data entry.
+![1946552](https://github.com/AnniesAnalytics/Python-codes/assets/99342712/b81f7901-09f1-4952-8e2c-3c4c2d6790c9)
