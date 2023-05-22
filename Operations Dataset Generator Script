@@ -1,0 +1,416 @@
+import random
+import pandas as pd
+from faker import Faker
+from dataclasses import dataclass
+from datetime import datetime, time, timedelta
+
+
+fake = Faker()
+
+stores = [
+    "North",
+    "East",
+    "South",
+    "West"
+]
+
+categories = [
+    "Electronics",
+    "Fashion",
+    "Toys",
+    "Sports",
+    "Automotive"
+]
+
+subcategories = {
+    "Electronics": ["Computers", "Mobile", "TV"],
+    "Fashion": ["Men", "Women", "Kids"],
+    "Toys": ["Action Figures", "Board Games", "Dolls"],
+    "Sports": ["Gym", "Outdoor", "Swimming"],
+    "Automotive": ["Accessories", "Tools", "Parts"]
+}
+
+
+preproduction_time_adjustment = {
+    "Computers": 0.1,
+    "Mobile": 0,
+    "TV": 0,
+    "Men": 0.05,
+    "Women": 0,
+    "Kids": 0,
+    "Action Figures": 0,
+    "Board Games": 0,
+    "Dolls": 0,
+    "Gym": 0,
+    "Outdoor": 0,
+    "Swimming": 0,
+    "Accessories": 0,
+    "Tools": 0,
+    "Parts": 0
+}
+
+assembly_time_adjustment = {
+    "Computers": 0,
+    "Mobile": 0.15,
+    "TV": 0,
+    "Men": 0,
+    "Women": 0,
+    "Kids": 0,
+    "Action Figures": 0,
+    "Board Games": 0,
+    "Dolls": 0,
+    "Gym": 0,
+    "Outdoor": 0,
+    "Swimming": 0,
+    "Accessories": 0,
+    "Tools": 0,
+    "Parts": 0
+}
+
+qa_time_adjustment = {
+    "Computers": 0,
+    "Mobile": 0,
+    "TV": 0,
+    "Men": 0,
+    "Women": 0,
+    "Kids": 0,
+    "Action Figures": 0,
+    "Board Games": 0,
+    "Dolls": 0,
+    "Gym": 0,
+    "Outdoor": 0,
+    "Swimming": 0,
+    "Accessories": 0,
+    "Tools": 0,
+    "Parts": 0
+}
+
+shipping_time_adjustment = {
+    "Computers": 0,
+    "Mobile": 0,
+    "TV": 0.25,
+    "Men": 0,
+    "Women": 0.3,
+    "Kids": 0,
+    "Action Figures": 0,
+    "Board Games": 0,
+    "Dolls": 0,
+    "Gym": 0,
+    "Outdoor": 0,
+    "Swimming": 0,
+    "Accessories": 0,
+    "Tools": 0,
+    "Parts": 0
+}
+    
+
+
+machine_ids = {
+    subcat: idx + 1
+    for cat_subcats in subcategories.values()
+    for idx, subcat in enumerate(cat_subcats)
+}
+
+
+
+
+@dataclass
+class Product:
+    product_id: int
+    name: str
+    category: str
+    subcategory: str
+    price: float
+
+@dataclass
+class SalesData:
+    date: pd.Timestamp
+    order_id: int
+    product_id: int
+    store: str
+    quantity: int
+    revenue: float
+
+@dataclass
+class ShippingData:
+    product_id: int
+    store: str
+    machine_id: int
+    preproduction_start: pd.Timestamp
+    preproduction_end: pd.Timestamp
+    assembly_start: pd.Timestamp
+    assembly_end: pd.Timestamp
+    qa_start: pd.Timestamp
+    qa_end: pd.Timestamp
+    error: bool
+    shipping_start: pd.Timestamp
+    shipping_end: pd.Timestamp
+
+
+@dataclass
+class OperationalData:
+    date: pd.Timestamp
+    machine_id: int
+    uptime: int
+    downtime: int
+
+
+    
+class Store:
+    def __init__(
+        self,
+        num_products: int,
+        num_entries: int,
+        output_path: str,
+        products_file: str,
+        sales_data_file: str,
+        shipping_data_file: str,
+        operational_data_file: str,
+        preproduction_time_adjustment: dict,
+        assembly_time_adjustment: dict,
+        qa_time_adjustment: dict,
+        shipping_time_adjustment: dict,
+    ):
+        self.num_products = num_products
+        self.num_entries = num_entries
+        self.output_path = output_path
+        self.products_file = products_file
+        self.sales_data_file = sales_data_file
+        self.shipping_data_file = shipping_data_file
+        self.operational_data_file = operational_data_file
+        self.preproduction_time_adjustment = preproduction_time_adjustment
+        self.assembly_time_adjustment = assembly_time_adjustment
+        self.qa_time_adjustment = qa_time_adjustment
+        self.shipping_time_adjustment = shipping_time_adjustment
+        self.products = self.generate_products()
+
+        product_store_combinations = [(random.choice(self.products), random.choice(stores)) for _ in range(self.num_entries)]
+
+        self.sales_data = self.generate_sales_data(product_store_combinations)
+
+        store_probabilities = self.get_store_probabilities()
+        self.shipping_data = self.generate_shipping_data(product_store_combinations, store_probabilities)
+
+        self.operational_data = self.generate_operational_data()
+
+
+    def generate_work_time(self, start_date, end_date):
+        date = fake.date_between(start_date=start_date, end_date=end_date)
+
+        def random_time_between(start_time, end_time):
+            start_time = datetime.strptime(start_time, "%H:%M:%S").time()
+            end_time = datetime.strptime(end_time, "%H:%M:%S").time()
+
+            delta = timedelta(hours=end_time.hour - start_time.hour, minutes=end_time.minute - start_time.minute)
+            random_delta = timedelta(minutes=random.randint(0, int(delta.total_seconds() // 60)))
+            random_time = (datetime.combine(date.min, start_time) + random_delta).time()
+            return random_time
+
+        time = random_time_between(start_time='08:00:00', end_time='17:00:00')
+        return pd.Timestamp(date.strftime("%Y-%m-%d") + ' ' + time.strftime("%H:%M:%S"))
+
+
+    
+    def generate_price(self, subcategory):
+        prices = {
+            "Computers": (500, 2000),
+            "Mobile": (100, 1000),
+            "TV": (200, 2000),
+            "Men": (10, 200),
+            "Women": (10, 200),
+            "Kids": (5, 100),
+            "Action Figures": (10, 100),
+            "Board Games": (20, 100),
+            "Dolls": (10, 100),
+            "Gym": (20, 500),
+            "Outdoor": (20, 500),
+            "Swimming": (10, 200),
+            "Accessories": (10, 200),
+            "Tools": (20, 400),
+            "Parts": (10, 500)
+        }
+
+        min_price, max_price = prices[subcategory]
+        return round(random.uniform(min_price, max_price), 2)
+
+    
+    def generate_products(self):
+        products = []
+
+        for i in range(self.num_products):
+            name = fake.catch_phrase() # We can just hide this 
+            category = random.choice(categories)
+            subcategory = random.choice(subcategories[category])
+            price = self.generate_price(subcategory)
+
+            products.append(Product(i + 1, name, category, subcategory, price))
+
+        return products
+
+    
+    def generate_sales_data(self, product_store_combinations):
+        sales_data = []
+        order_id = 1
+
+        for product, store in product_store_combinations:
+            date = self.generate_work_time(start_date="-1y", end_date="today")
+            quantity = random.randint(1, 10)
+            revenue = round(product.price * quantity, 2)
+
+            sales_data.append(SalesData(date, order_id, product.product_id, store, quantity, revenue))
+
+            if random.random() < 0.3:  # 30% chance of adding another product to the order
+                another_product = random.choice(self.products)
+                quantity = random.randint(1, 5)
+                revenue = round(another_product.price * quantity, 2)
+                sales_data.append(SalesData(date, order_id, another_product.product_id, store, quantity, revenue))
+
+            order_id += 1
+
+        return sales_data
+
+    def get_store_probabilities(self):
+        sales_data_df = pd.DataFrame([vars(sd) for sd in self.sales_data])
+        store_sales = sales_data_df.groupby("store").agg({"quantity": "sum"}).reset_index()
+        store_sales["probability"] = store_sales["quantity"] / store_sales["quantity"].sum()
+        store_probabilities = store_sales[["store", "probability"]].to_dict("records")
+        return store_probabilities
+
+    
+    
+    def generate_shipping_data(self, product_store_combinations, store_probabilities):
+        shipping_data = []
+
+        for product, _ in product_store_combinations:
+            store = random.choices([sp["store"] for sp in store_probabilities], [sp["probability"] for sp in store_probabilities])[0]
+            machine_id = machine_ids[product.subcategory]
+            preproduction_start = self.generate_work_time(start_date="-1y", end_date="today")
+            preproduction_end = preproduction_start + pd.Timedelta(
+                days=random.randint(
+                    1,
+                    3 + int(3 * self.preproduction_time_adjustment[product.subcategory]),
+                ),
+                hours=random.randint(0, 23),
+                minutes=random.randint(0, 59),
+                seconds=random.randint(0, 59),
+            )
+            assembly_start = preproduction_end + pd.Timedelta(
+                days=random.randint(1, 3),
+                hours=random.randint(0, 23),
+                minutes=random.randint(0, 59),
+                seconds=random.randint(0, 59),
+            )
+            assembly_end = assembly_start + pd.Timedelta(
+                days=random.randint(
+                    1,
+                    7 + int(7 * self.assembly_time_adjustment[product.subcategory]),
+                ),
+                hours=random.randint(0, 23),
+                minutes=random.randint(0, 59),
+                seconds=random.randint(0, 59),
+            )
+            qa_start = assembly_end + pd.Timedelta(
+                days=random.randint(1, 7),
+                hours=random.randint(0, 23),
+                minutes=random.randint(0, 59),
+                seconds=random.randint(0, 59),
+            )
+            qa_end = qa_start + pd.Timedelta(
+                days=random.randint(
+                    1,
+                    3 + int(3 * self.qa_time_adjustment[product.subcategory]),
+                ),
+                hours=random.randint(0, 23),
+                minutes=random.randint(0, 59),
+                seconds=random.randint(0, 59),
+            )
+
+            error = random.choices([True, False], weights=[0.03, 0.97])[0]
+            if not error:
+                shipping_start = qa_end + pd.Timedelta(
+                    days=random.randint(1, 7),
+                    hours=random.randint(0, 23),
+                    minutes=random.randint(0, 59),
+                    seconds=random.randint(0, 59),
+                )
+                shipping_end = shipping_start + pd.Timedelta(
+                    days=random.randint(
+                        1,
+                        14 + int(14 * self.shipping_time_adjustment[product.subcategory]),
+                    ),
+                    hours=random.randint(0, 23),
+                    minutes=random.randint(0, 59),
+                    seconds=random.randint(0, 59),
+                )
+            else:
+                shipping_start = None
+                shipping_end = None
+
+            shipping_data.append(
+                ShippingData(
+                    product.product_id,
+                    store,
+                    machine_id,
+                    preproduction_start,
+                    preproduction_end,
+                    assembly_start,
+                    assembly_end,
+                    qa_start,
+                    qa_end,
+                    error,
+                    shipping_start,
+                    shipping_end,
+                )
+            )
+
+        return shipping_data
+
+
+
+    def generate_operational_data(self):
+        operational_data = []
+
+        for _ in range(self.num_entries):
+            date = self.generate_work_time(start_date="-1y", end_date="today")
+            machine_id = random.randint(1, 10)
+            uptime = random.randint(10, 100)
+            downtime = random.randint(0, 10)
+
+            operational_data.append(OperationalData(date, machine_id, uptime, downtime))
+
+        return operational_data
+
+    def save_to_csv(self):
+        products_df = pd.DataFrame([vars(p) for p in self.products])
+        sales_data_df = pd.DataFrame([vars(sd) for sd in self.sales_data])
+        shipping_data_df = pd.DataFrame([vars(sh) for sh in self.shipping_data])
+        operational_data_df = pd.DataFrame([vars(op) for op in self.operational_data])
+
+        products_df.to_csv(f"{self.output_path}/{self.products_file}", index=False)
+        sales_data_df.to_csv(f"{self.output_path}/{self.sales_data_file}", index=False)
+        shipping_data_df.to_csv(f"{self.output_path}/{self.shipping_data_file}", index=False)
+        operational_data_df.to_csv(f"{self.output_path}/{self.operational_data_file}", index=False)
+
+        
+    
+        
+    
+    
+store = Store(
+    num_products=100,
+    num_entries=500,
+    output_path=r"C:\Users\kanel\Documents\Python Tests",
+    products_file="my_products_operations1.csv",
+    sales_data_file="my_sales_data_operations1.csv",
+    shipping_data_file="my_shipping_data_operations1.csv",
+    operational_data_file="my_operational_data_operations1.csv",
+    preproduction_time_adjustment=preproduction_time_adjustment,
+    assembly_time_adjustment=assembly_time_adjustment,
+    qa_time_adjustment=qa_time_adjustment,
+    shipping_time_adjustment=shipping_time_adjustment,
+)
+
+
+
+store.save_to_csv()
+print("Done. Output saved to", store.output_path)
