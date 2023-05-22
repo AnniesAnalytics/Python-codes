@@ -5,8 +5,8 @@ I used Chat-GPT to help me with these codes. I came up with the ideas for them e
 
 As I write more scripts, I need less explainations! Or - I feel ready to dive into harder topics.
 
-Want to download a .csv file for yourself? No problem. You can find it [Here](https://anniesanalytics.wixsite.com/annie-nelson/single-project). Just click on the Excel file icon!
-
 You will also find some Chat-GPT assisted demo projects in here where I write out the dialogue between me and Chat-GPT. This is so beginners can see how approachable it is!
 
 Note the "Cleaning Files" script is one I actually used at my job!
+
+# Scripts I actually used at my job
