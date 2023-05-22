@@ -7,6 +7,9 @@ As I write more scripts, I need less explainations! Or - I feel ready to dive in
 
 You will also find some Chat-GPT assisted demo projects in here where I write out the dialogue between me and Chat-GPT. This is so beginners can see how approachable it is!
 
-Note the "Cleaning Files" script is one I actually used at my job!
 
 # Scripts I actually used at my job
+
+The "Operations Dataset Generator" script is one that took me a lot of time and thought to write. It creates a multi-table dataset about a store's operations department. This script has carefully been created to not just generate random data, but to generate meaningful data that you can analyze and pull trends out of. It is also adjustable, so you can choose to add dysfunction or a price increase into just one of the dataset.
+
+The "Cleaning Files" script is one I actually run intermittently with one of my customers who has to do a lot of manual data entry.
