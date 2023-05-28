@@ -19,4 +19,4 @@ The ["Cleaning Files"](https://github.com/AnniesAnalytics/Python-codes/blob/main
 
 
 # Scripts for Making Dirty Data for my Book/ Portfolio
-Want to see my conversation with Chat-GPT to make a Python script to dirty up data (that I had created, using ChatGPT and Python)? [Here](https://chat.openai.com/share/46a41a2d-99a0-4f61-8343-1b2a233817fc) is a link to the conversation.
+Want to see my conversation with Chat-GPT to make a Python script to dirty up data (that I had created, using ChatGPT and Python)? [Here](https://chat.openai.com/share/46a41a2d-99a0-4f61-8343-1b2a233817fc) is a link to the conversation. [Here](https://github.com/AnniesAnalytics/Python-codes/blob/main/Dirty%20Ops%20Data.ipynb) is the code it produced. And [here](https://drive.google.com/drive/folders/103z4xAs9G7Z6CD7WhLKAjgUr3XoMPpnt?usp=sharing) is where you can download the data.
