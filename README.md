@@ -16,3 +16,7 @@ The ["Operations Dataset Generator"](https://github.com/AnniesAnalytics/Python-c
 
 
 The ["Cleaning Files"](https://github.com/AnniesAnalytics/Python-codes/blob/main/Cleaning%20Files) script is one I actually run intermittently with one of my customers who has to do a lot of manual data entry.
+
+
+# Scripts for Making Dirty Data for my Book/ Portfolio
+Want to see my conversation with Chat-GPT to make a Python script to dirty up data (that I had created, using ChatGPT and Python)? [Here](https://chat.openai.com/share/46a41a2d-99a0-4f61-8343-1b2a233817fc) is a link to the conversation.
